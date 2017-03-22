@@ -6,7 +6,7 @@
   "dependencies": {
     "express": "^4.13.4",
     "google-auth-library": "^0.9.7",
-    "express-http-proxy": "^0.11.0",
+    "express-http-proxy": "^0.7.4",
     "body-parser": "^1.15.0",
     "http-proxy": "^1.16.2",
     "mongodb": "^2.1.7",
