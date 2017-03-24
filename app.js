@@ -52,7 +52,8 @@ app.post('/directedpath/query', function(req, resp) {
         path: '/directedpath/query' + querystring,
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Transfer-Encoding': 'identity'
         }
     };
 
