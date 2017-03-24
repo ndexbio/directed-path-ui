@@ -33,8 +33,50 @@ app.get('/getMessage/:myMessage', function(req, res) {
  res.send(myMessage);
 });
 
+app.post('/directedpath/query', function(req, resp) {
+    var query = req.query;
+
+    console.log(query.source);
+    console.log(query.target);
+    console.log(query.pathnum);
+    console.log(query.uuid);
+    console.log(query.server);
+
+    var querystring = "?source=" + query.source + "&target=" + query.target + "&pathnum=" + query.pathnum + "&uuid=" + query.uuid + "&server=" + query.server;
+
+
+
+    var extServerOptionsPost = {
+        host: 'general.bigmech.ndexbio.org',
+        port: '5603',
+        path: '/directedpath/query' + querystring,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+
+    //6
+    var reqPost = http.request(extServerOptionsPost, function (res) {
+        console.log("response statusCode: ", res.statusCode);
+        res.on('data', function (data) {
+            process.stdout.write(data);
+        });
+    });
+
+    // 7
+    //reqPost.write(employee);
+    reqPost.end();
+    reqPost.on('error', function (e) {
+        console.error(e);
+    });
+
+});
+
+
+
 console.log("Ready...");
 
-app.use("/directedpath/*", apiProxy);
+//app.use("/directedpath/*", apiProxy);
 
 app.listen(3000)
