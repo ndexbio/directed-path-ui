@@ -25,16 +25,37 @@ var apiProxy = proxy('general.bigmech.ndexbio.org:5603/directedpath/query', {
     forwardPath: function (req, res) {
         console.log(req.originalUrl);
         return require('url').parse(req.originalUrl).path;
+    },
+    decorateRequest: function(proxyReq, originalReq) {
+        // you can update headers
+        proxyReq.headers['Content-Type'] = 'application/json';
+        proxyReq.headers['Transfer-Encoding'] = 'gzip';
+
+        return proxyReq;
     }
 });
+
+/*proxy('www.google.com', {
+  decorateRequest: function(proxyReq, originalReq) {
+    // you can update headers
+    proxyReq.headers['Content-Type'] = 'text/html';
+    // you can change the method
+    proxyReq.method = 'GET';
+    // you can munge the bodyContent.
+    proxyReq.bodyContent = proxyReq.bodyContent.replace(/losing/, 'winning!');
+    return proxyReq;
+  }
+})*/
+
 
 app.get('/getMessage/:myMessage', function(req, res) {
  var myMessage = req.params.myMessage;
  res.send(myMessage);
 });
 
-app.post('/directedpath/query', function(req, resp) {
+app.post('/xdirectedpath/query', function(req, resp) {
     var query = req.query;
+    var returnData = "";
 
     console.log(query.source);
     console.log(query.target);
@@ -53,7 +74,7 @@ app.post('/directedpath/query', function(req, resp) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Transfer-Encoding': 'identity'
+            'Transfer-Encoding': 'gzip'
         }
     };
 
@@ -61,6 +82,7 @@ app.post('/directedpath/query', function(req, resp) {
     var reqPost = http.request(extServerOptionsPost, function (res) {
         console.log("response statusCode: ", res.statusCode);
         res.on('data', function (data) {
+            returnData += data;
             process.stdout.write(data);
         });
     });
@@ -72,12 +94,15 @@ app.post('/directedpath/query', function(req, resp) {
         console.error(e);
     });
 
+    //resp.send(JSON.stringify({"data": docs[0]["data"]});
+
 });
 
 
 
 console.log("Ready...");
 
-//app.use("/directedpath/*", apiProxy);
+app.use("/directedpath/*", apiProxy);
+
 
 app.listen(3000)
