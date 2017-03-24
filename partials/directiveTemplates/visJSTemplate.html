@@ -1,4 +1,3 @@
-<div id="heatmapIsLoading" style="width: 200px; margin-left: 50px;"></div>
 <div style="height: 320px; width: 900px; overflow: scroll; margin-bottom: 25px; border: 1px solid #C0C0C0;">
     <table class="table table-striped table-hover" style="empty-cells: show;" ng-class="info.toggleTableClick ? 'tableClickSelect':'tableHoverSelect'">
         <tr ng-repeat="path in paths" ng-class="selectedRow==$index ? 'info':''" ng-click="neighborhoodHighlight(path, $index, true);">
@@ -14,6 +13,7 @@
         </tr>
     </table>
 </div>
+<div id="graphIsLoading" style="width: 200px; margin-left: 50px;"></div>
 <div style="height: 20px; width: 900px;">
     <div class="pull-right" style="margin-left: 10px;">Target Nodes <span class="label label-default" style="background-color: #EDF100;">&nbsp;</span></div>
     <div class="pull-right" style="margin-left: 10px;">In-between Nodes <span class="label label-default" style="background-color: #ECECEC;">&nbsp;</span></div>

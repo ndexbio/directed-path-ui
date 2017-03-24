@@ -10,11 +10,6 @@ var fs = require('fs');
 var masterList = [];
 var geoList = [];
 
-app.use(function(req,res,next){
-    req.db = db;
-    next();
-});
-
 app.use(express.static(__dirname + '/',{ maxAge: 1000 }));
 
 var bodyParser = require('body-parser');

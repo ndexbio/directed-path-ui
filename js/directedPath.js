@@ -7,7 +7,7 @@ app.config(['$routeProvider',
         $routeProvider
         .when('/about', {
             templateUrl: 'partials/about/mainAboutTemplate.html',
-            controller: 'directedPathController',
+            controller: 'directedPathCtrl',
             activetab: 'MAINABOUT'
         })
         .otherwise({

@@ -21,7 +21,7 @@ app.directive('visJsGraph', function ($timeout) {
 
 
         scope.init = function(params) {
-            $('#heatmapIsLoading').html('<span class="fa fa-spinner fa-2x fa-pulse"></span>');
+            $('#graphIsLoading').html('<span class="fa fa-spinner fa-2x fa-pulse"></span>');
             var sourceTargetNodes = _.intersection(scope.sources, scope.targets);
 
             pathElementIdBase = 20000;
@@ -40,6 +40,9 @@ app.directive('visJsGraph', function ($timeout) {
             scope.networkCx.forEach(function(cxElement) {
                 if(cxElement.hasOwnProperty('nodes')){
                     if(sourceTargetNodes.indexOf(cxElement.nodes[0].n) > -1){
+                    //==========================================
+                    // Nodes that are both SOURCES and TARGETS
+                    //==========================================
                         nodestmp.push({id: cxElement.nodes[0]["@id"], label: cxElement.nodes[0].n, shape: "dot", color: {'background': "#00FFF0", "border": "#C0C0C0"}, permaColor: {'background': "#00FFF0", "border": "#C0C0C0"}});
                         edgestmp.push({from: 99994, to: cxElement.nodes[0]["@id"], label: "Attractor", hidden: true});
                         edgestmp.push({from: 99995, to: cxElement.nodes[0]["@id"], label: "Attractor", hidden: true});
@@ -48,11 +51,17 @@ app.directive('visJsGraph', function ($timeout) {
                         edgestmp.push({from: 99998, to: cxElement.nodes[0]["@id"], label: "Attractor", hidden: true});
                         edgestmp.push({from: 99999, to: cxElement.nodes[0]["@id"], label: "Attractor", hidden: true});
                    } else if(scope.sources.indexOf(cxElement.nodes[0].n) > -1){
+                    //==========================================
+                    // Nodes that are SOURCES
+                    //==========================================
                         nodestmp.push({id: cxElement.nodes[0]["@id"], label: cxElement.nodes[0].n, shape: "dot", color: {'background': "#00F000", "border": "#C0C0C0"}, permaColor: {'background': "#00F000", "border": "#C0C0C0"}});
                         edgestmp.push({from: 99994, to: cxElement.nodes[0]["@id"], label: "Attractor", hidden: true});
                         edgestmp.push({from: 99995, to: cxElement.nodes[0]["@id"], label: "Attractor", hidden: true});
                         edgestmp.push({from: 99996, to: cxElement.nodes[0]["@id"], label: "Attractor", hidden: true});
                     } else if(scope.targets.indexOf(cxElement.nodes[0].n) > -1) {
+                    //==========================================
+                    // Nodes that are TARGETS
+                    //==========================================
                         nodestmp.push({id: cxElement.nodes[0]["@id"], label: cxElement.nodes[0].n, shape: "dot", color: {'background': "#F0F000", "border": "#C0C0C0"}, permaColor: {'background': "#F0F000", "border": "#C0C0C0"}});
                         edgestmp.push({from: 99997, to: cxElement.nodes[0]["@id"], label: "Attractor", hidden: true});
                         edgestmp.push({from: 99998, to: cxElement.nodes[0]["@id"], label: "Attractor", hidden: true});
@@ -70,40 +79,11 @@ app.directive('visJsGraph', function ($timeout) {
                                 } else {
                                     edgestmp.push({from: cxElement.edges[0]["s"], to: cxElement.edges[0]["t"], label: cxElement.edges[0]["i"]});
                                 }
-                            } else {
-                                //console.log("don't keep");
-                                //console.log(cxElement.edges[0]);
                             }
                         }
-
-                        /*
-                        if(edge_docket.hasOwnProperty(cxElement.edges[0]["s"]))
-                        {
-                            if(edge_docket[cxElement.edges[0]["s"]].hasOwnProperty(cxElement.edges[0]["t"])){
-                                found_edge = true;
-                                console.log("found one");
-                            } else {
-                                edge_docket[cxElement.edges[0]["s"]] = {};
-                                edge_docket[cxElement.edges[0]["s"]][cxElement.edges[0]["t"]] = cxElement.edges[0]["i"];
-                            }
-                        } else {
-                                edge_docket[cxElement.edges[0]["s"]] = {};
-                                edge_docket[cxElement.edges[0]["s"]][cxElement.edges[0]["t"]] = cxElement.edges[0]["i"];
-                        }
-
-                        if(!found_edge){
-                            if(cxElement.edges[0]["i"] != "Complex"){
-                                edgestmp.push({from: cxElement.edges[0]["s"], to: cxElement.edges[0]["t"], arrows:'to', label: cxElement.edges[0]["i"]});
-                            } else {
-                                edgestmp.push({from: cxElement.edges[0]["s"], to: cxElement.edges[0]["t"], label: cxElement.edges[0]["i"]});
-                            }
-                        }
-                        */
                     }
                 }
             });
-
-            //console.log(edge_docket);
 
             scope.nodes = new vis.DataSet(nodestmp);
             scope.edges = new vis.DataSet(edgestmp);
@@ -113,7 +93,6 @@ app.directive('visJsGraph', function ($timeout) {
                 nodes: scope.nodes,
                 edges: scope.edges
             };
-
 
                 var options = {
                   nodes: {
@@ -185,17 +164,14 @@ app.directive('visJsGraph', function ($timeout) {
             scope.network.on("afterDrawing", scope.afterDrawing);
 
            $timeout(function() {
-             $('#heatmapIsLoading').html('');
-           }, 500);
+             $('#graphIsLoading').html('');
+           }, 300);
         };
 
         scope.afterDrawing = function (params) {
             if(!scope.info.doneRendering){
                 scope.info.doneRendering = true;
                 scope.network.setOptions({physics: {enabled: false}});
-
-
-
             }
         };
 
@@ -215,9 +191,6 @@ app.directive('visJsGraph', function ($timeout) {
                 }
           }
 
-
-            //console.log(params)
-            //console.log(scope.allNodes);
         };
 
         scope.clearHighlight = function(path) {
@@ -293,7 +266,6 @@ app.directive('visJsGraph', function ($timeout) {
                     scope.allEdges[edgeId].hidden = true;
                 }
 
-
                 for(var pathToggled in scope.highlightThesePaths){
                     if(scope.highlightThesePaths.hasOwnProperty(pathToggled)){
                         var path = scope.highlightThesePaths[pathToggled];
@@ -349,18 +321,9 @@ app.directive('visJsGraph', function ($timeout) {
                             if(scope.highlightPathEdges.indexOf(edgeId) > -1){
                                 scope.allEdges[edgeId].hidden = false;
                             }
-
-//                            scope.allEdges[edgeId].color = '#C0C0C0';
                         }
                     }
-
-
-
                 }
-
-
-
-
 
                 // transform the object into an array
                 var updateEdgeArray = [];
