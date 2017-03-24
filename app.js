@@ -2,12 +2,8 @@ var express = require('express');
 var app = express();
 var path = require('path');
 var request = require('request');
-var mongo = require('mongodb');
-var monk = require('monk');
 var http = require('http');
 var proxy = require('express-http-proxy');
-
-var db = monk('127.0.0.1:27017/cache');
 
 var fs = require('fs');
 
@@ -29,19 +25,13 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-/// New hostname+path as specified by question:
+//var apiProxy = proxy('localhost:5603/directedpath/query', {
 var apiProxy = proxy('general.bigmech.ndexbio.org:5603/directedpath/query', {
     forwardPath: function (req, res) {
+        console.log(req.originalUrl);
         return require('url').parse(req.originalUrl).path;
     }
 });
-
-/*/ New hostname+path as specified by question:
-var apiProxy = proxy('localhost:5603/directedpath/query', {
-    forwardPath: function (req, res) {
-        return require('url').parse(req.originalUrl).path;
-    }
-});*/
 
 app.get('/getMessage/:myMessage', function(req, res) {
  var myMessage = req.params.myMessage;
