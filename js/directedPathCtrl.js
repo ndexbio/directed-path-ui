@@ -16,7 +16,8 @@ app.controller('directedPathCtrl', function ($scope, $http) {
     $scope.numPaths = 15;
     $scope.info = {
         nodeRef: [], //["AKT", "MDM2", "MTOR", "BRAF", "MAP2K3", "FGR"]
-        showOtherUuid: false
+        showOtherUuid: false,
+        preferenceSchedule: {}
     };
 
     $scope.info.nodeRef
@@ -173,6 +174,19 @@ app.controller('directedPathCtrl', function ($scope, $http) {
                     $scope.info.nodeRef.push(node.n);
                 }
             });
+        }, function myError(response) {
+            console.log(response.statusText);
+        });
+    };
+
+    $scope.getPreferenceSchedule = function() {
+        var myUrl = "getPreferenceSchedule";
+        $http({
+            method : "GET",
+            url : myUrl
+        }).then(function mySucces(response) {
+            console.log(response.data);
+            $scope.info.preferenceSchedule = response.data.data;
         }, function myError(response) {
             console.log(response.statusText);
         });

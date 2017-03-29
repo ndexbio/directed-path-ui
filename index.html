@@ -89,6 +89,38 @@
 
 
 
+        <div id="preferenceScheduleModal" class="modal large fade" role="dialog">
+            <div class="modal-dialog large">
+
+                <!-- PREF SCHED -->
+                <div class="modal-content">
+                    <div class="modal-header" style="border-bottom: 0px;">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Preference Schedule</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="well" ng-repeat="pref in info.preferenceSchedule">
+                            <div class="progress pull-left" style="width: 30px; margin-right: 5px; box-shadow: inset 0 0px 0px rgba(0,0,0,.1); border-radius: 0px;">
+                                <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: {{100 - $index*11.5}}%">
+                                </div>
+                            </div>
+
+                            <span ng-repeat="p in pref"><i class="fa fa-angle-left" aria-hidden="true"></i>{{p}}<i class="fa fa-angle-right" aria-hidden="true"></i> &nbsp;&nbsp;</span>
+
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Done</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
 
       <div class="row row-offcanvas row-offcanvas-right">
 
@@ -106,14 +138,28 @@
 
             <div class="row" ng-show="viewGraph">
                 <div class="col-lg-12">
-                    <div class="form-group">
                         <h4 for="sel1">Reference Network:</h4>
-                        <select class="form-control" name="mySelect" id="mySelect" ng-change="refNetworkChanged(data.selectedOption.id);"
-                                ng-options="option.name for option in data.availableOptions track by option.id" ng-model="data.selectedOption"><option>blah</option></select>
+                    <div class="input-group">
+                        <select class="form-control" name="sel1" id="mySelect" ng-change="refNetworkChanged(data.selectedOption.id);"
+                                ng-options="option.name for option in data.availableOptions track by option.id" ng-model="data.selectedOption"></select>
+      <span class="input-group-btn">
+                    <button class="btn btn-default" data-toggle="modal" data-target="#preferenceScheduleModal" ng-click="getPreferenceSchedule()" type="button">
+                        <i class="fa fa-info-circle" aria-hidden="true"></i>
+                    </button>
+      </span>
+
                         <input type="text" id="otherUuid" ng-change="checkUuid()" ng-model="data.otherSelectedOption.id" ng-show="info.showOtherUuid" class="form-control" placeholder="Enter uuid" autocomplete="off">
                     </div>
                 </div>
             </div>
+
+            <div class="row" ng-show="viewGraph">
+                <div class="col-lg-12">
+
+
+                </div>
+            </div>
+
 
           <div class="row" ng-show="viewGraph">
             <div class="col-6 col-lg-4">
@@ -195,6 +241,8 @@
             <div class="col-3 col-lg-2">
                     <div class="btn btn-primary pull-left" style="margin-top: 120px;" ng-click="findPaths()" ng-disabled="!enableSubmit">Find paths</div>
                     <!--<div class="btn btn-primary pull-left" style="margin-top: 20px;" ng-click="getNetworkNodes(null)" ng-disabled="!enableSubmit">Find nodes</div>-->
+
+
             </div>
           </div>
           <hr>

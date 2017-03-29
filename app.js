@@ -42,24 +42,15 @@ var nodeIdsProxy = proxy('public.ndexbio.org/network/networkid/aspect/nodes', {
     }
 });
 
-var uuidSearchProxy = proxy('public.ndexbio.org/search/network', {
+var preferenceScheduleProxy = proxy('general.bigmech.ndexbio.org:5603/getPreferenceSchedule', {
     forwardPath: function (req, res) {
-
-        console.log(req);//.originalUrl);
         return require('url').parse(req.originalUrl).path;
     },
     decorateRequest: function(proxyReq, originalReq) {
-        console.log("proxy search uuid");
         proxyReq.headers['Content-Type'] = 'application/json';
-        proxyReq.method = 'POST';
-        proxyReq.bodyContent = {"searchString": "RAS1"};
         return proxyReq;
     }
 });
-
-//public.ndexbio.org/v2/search/network?start=0&size=20
-
-//public.ndexbio.org/v2/network/073b9f25-6194-11e5-8ac5-06603eb7f303/aspect/nodes?size=5000
 
 app.get('/getMessage/:myMessage', function(req, res) {
  var myMessage = req.params.myMessage;
@@ -72,7 +63,7 @@ app.use("/directedpath/*", apiProxy);
 
 app.use("/v2/network/*", nodeIdsProxy);
 
-app.use("/v2/search/*", uuidSearchProxy);
+app.use("/getPreferenceSchedule", preferenceScheduleProxy);
 
 
 app.listen(3000)
