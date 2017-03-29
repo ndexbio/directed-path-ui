@@ -1,10 +1,9 @@
 var app = angular.module('directedPathApp'); //ui-bootstrap
 
-
 app.controller('directedPathCtrl', function ($scope, $http) {
     $scope.useDev = false;
     $scope.lastKey = "";
-    $scope.enableSubmit = true;
+    $scope.enableSubmit = false;
     $scope.previousLastKey = "";
     $scope.dirty_source = {"term_list": ""};
     $scope.dirty_target = {"term_list": ""};
@@ -15,6 +14,12 @@ app.controller('directedPathCtrl', function ($scope, $http) {
     $scope.targetNodes = [];
     $scope.viewGraph = true;
     $scope.numPaths = 15;
+    $scope.info = {
+        nodeRef: [], //["AKT", "MDM2", "MTOR", "BRAF", "MAP2K3", "FGR"]
+        showOtherUuid: false
+    };
+
+    $scope.info.nodeRef
 
     $scope.sources = [
     {"id": "AKT1"},
@@ -28,35 +33,44 @@ app.controller('directedPathCtrl', function ($scope, $http) {
     {"id": "EGFR"}
     ];
 
-    $scope.addSource = function(){
-        $scope.sources.push({"id": "128888"});
-    };
-
-    $scope.add_target_terms = function (termList) {
-        termList = $scope.parseTerms(termList);
-
-        for (addThisTerm in termList){
-            $scope.targets.push({"id": termList[addThisTerm]});
+/*    $scope.referenceNetworks = [
+        {
+            "name": "Default",
+            "id": "84f321c6-dade-11e6-86b1-0ac135e8bacf",
+            "group": "nci-pid"
+        },
+        {
+            "name": "Insulin Pathway",
+            "id": "073b9f25-6194-11e5-8ac5-06603eb7f303",
+            "group": "nci-pid"
+        },
+        {
+            "name": "PLK3 signalling events",
+            "id": "eac8a4b8-6194-11e5-8ac5-06603eb7f303",
+            "group": "nci-pid"
+        },
+        {
+            "name": "Other",
+            "id": "eac8a4b8-6194-11e5-8ac5-06603eb7f303",
+            "group": "nci-pid"
         }
+    ];
+*/
 
-        $scope.dirty_target.term_list = "";
-        $scope.checkSubmitButton();
-    };
-
-    $scope.add_source_terms = function (termList) {
-        termList = $scope.parseTerms(termList);
-
-        for (addThisTerm in termList){
-            $scope.sources.push({"id": termList[addThisTerm]});
-        }
-
-        $scope.dirty_source.term_list = "";
-        $scope.checkSubmitButton();
+    $scope.data = {
+        availableOptions: [
+          {id: "84f321c6-dade-11e6-86b1-0ac135e8bacf", name: "Default (BigMech evaluation prior)"},
+          {id: "073b9f25-6194-11e5-8ac5-06603eb7f303", name: "Insulin Pathway"},
+          {id: "eac8a4b8-6194-11e5-8ac5-06603eb7f303", name: "PLK3 signalling events"},
+          {id: -1, name: "Other"}
+        ],
+        selectedOption: {id: "84f321c6-dade-11e6-86b1-0ac135e8bacf", name: "Default"}, //This sets the default value of the select in the ui
+        otherSelectedOption: {id: "", name: "Other"}
     };
 
     $scope.parseTerms = function(termList) {
             var terms = angular.copy(termList);
-            //var terms = _.terms($scope.dirty.term_list, /[\w0-9\-_]+/g);
+
             if(terms.indexOf("JSON_CALLBACK") > -1){
                 terms = terms.replace(/JSON_CALLBACK/g, "");
             }
@@ -73,24 +87,27 @@ app.controller('directedPathCtrl', function ($scope, $http) {
 
             termsArray = terms.split(',');
 
-            //for (addThisTerm in termsArray){
-            //    $scope.targets.push({"id": termsArray[addThisTerm]});
-            //}
-
-            console.log(termsArray);
-
             return termsArray;
     };
 
-    $scope.checkSubmitButton = function() {
-        if(($scope.sources.length > 0) && ($scope.targets.length > 0)){
+    $scope.checkSubmitButton = function(sourceLength, targetLength, refNetworks) {
+        if((sourceLength > 0) && (targetLength > 0) && (refNetworks)){
             $scope.enableSubmit = true;
         } else {
             $scope.enableSubmit = false;
         }
     };
 
-    $scope.checkSubmitButton2 = function() {
+    $scope.checkUuid = function() {
+        if($scope.data.otherSelectedOption.id.length >= 36){
+            $scope.getNetworkNodes($scope.data.otherSelectedOption.id);
+            $scope.checkSubmitButton($scope.sources.length, $scope.targets.length, $scope.data.otherSelectedOption.id);
+        } else {
+            $scope.checkSubmitButton($scope.sources.length, $scope.targets.length, null);
+        }
+    };
+
+    $scope.findPaths = function() {
         $scope.pathsWithBestEdge = [];
         var tmpSources = [];
         var tmpTargets = [];
@@ -102,13 +119,17 @@ app.controller('directedPathCtrl', function ($scope, $http) {
             tmpTargets.push(entry.id);
         });
 
-        var uuid = "84f321c6-dade-11e6-86b1-0ac135e8bacf";
+        var uuid = "";
+        if($scope.data.selectedOption.id != -1){
+            uuid = $scope.data.selectedOption.id;
+        } else {
+            uuid = $scope.data.otherSelectedOption.id;
+        }
         var serverHost = "public.ndexbio.org";
 
         var myUrl = "directedpath/query?source=" + tmpSources.join() + "&target=" + tmpTargets.join() + "&pathnum=" + $scope.numPaths + "&uuid=" + uuid + "&server=" + serverHost;
         $scope.sourceNodes = tmpSources;
         $scope.targetNodes = tmpTargets;
-        //console.log(myUrl);
 
         $http({
             method : "POST",
@@ -116,7 +137,6 @@ app.controller('directedPathCtrl', function ($scope, $http) {
         }).then(function mySucces(response) {
             var processData = response.data.data;
             $scope.networkCx = processData.network;
-            //console.log(processData);
             processData.forward_english.forEach(function(topPaths) {
                 var tmpPath = [];
                 topPaths.forEach(function(pathElement) {
@@ -128,28 +148,105 @@ app.controller('directedPathCtrl', function ($scope, $http) {
                 });
                 $scope.pathsWithBestEdge.push(tmpPath);
             });
-            //console.log($scope.pathsWithBestEdge);
 
             $scope.viewGraph = false;
 
             $scope.myWelcome = response.data;
-            //console.log($scope.myWelcome);
         }, function myError(response) {
-            $scope.myWelcome = response.statusText;
-            console.log($scope.myWelcome);
+            console.log(response.statusText);
         });
     };
 
+    $scope.getNetworkNodes = function(networkUuid) {
+        $scope.info.nodeRef = [];
+        var serverHost = "public.ndexbio.org";
+
+        var myUrl = "v2/network/" + networkUuid + "/aspect/nodes?size=500";
+        $http({
+            method : "GET",
+            url : myUrl
+        }).then(function mySucces(response) {
+            response.data.forEach(function(node) {
+                if(typeof node === "string"){
+                    console.log("return data is in the wrong format (str)");
+                } else { //assume it's an array
+                    $scope.info.nodeRef.push(node.n);
+                }
+            });
+        }, function myError(response) {
+            console.log(response.statusText);
+        });
+    };
+
+    $scope.searchForNetworks = function(networkUuid) {
+        $scope.info.nodeRef = [];
+        var serverHost = "public.ndexbio.org";
+        var searchString = {"searchString": "RAS"};
+
+        var myUrl = "v2/search/network?start=0&size=20";
+        $http({
+            method : "POST",
+            url : myUrl,
+            data: searchString,
+        }).then(function mySucces(response) {
+            response.data.forEach(function(node) {
+                if(typeof node === "string"){
+                    console.log("return data is in the wrong format (str)");
+                } else { //assume it's an array
+                    $scope.info.nodeRef.push(node.n);
+                }
+            });
+        }, function myError(response) {
+            console.log(response.statusText);
+        });
+    };
+
+    //================================
+    //================================
+    // ADD/DELETE SOURCES and TARGETS
+    //================================
+    //================================
+    $scope.add_target_terms = function (termList) {
+        termList = $scope.parseTerms(termList);
+
+        for (addThisTerm in termList){
+            $scope.targets.push({"id": termList[addThisTerm]});
+        }
+
+        $scope.dirty_target.term_list = "";
+        $scope.checkSubmitButton($scope.sources.length, $scope.targets.length, $scope.data.selectedOption.id);
+    };
+
+    $scope.add_source_terms = function (termList) {
+        termList = $scope.parseTerms(termList);
+
+        for (addThisTerm in termList){
+            $scope.sources.push({"id": termList[addThisTerm]});
+        }
+
+        $scope.dirty_source.term_list = "";
+        $scope.checkSubmitButton($scope.sources.length, $scope.targets.length, $scope.data.selectedOption.id);
+    };
+
+    $scope.refNetworkChanged = function(item){
+        if(item != -1){
+            $scope.info.showOtherUuid = false;
+            $scope.getNetworkNodes(item);
+            $scope.checkSubmitButton($scope.sources.length, $scope.targets.length, item);
+        } else {
+            $scope.info.showOtherUuid = true;
+            $scope.checkSubmitButton($scope.sources.length, $scope.targets.length, null);
+        }
+    }
+
     $scope.deleteSource = function(obj){
-        //console.log(obj);
         $scope.sources = _.without($scope.sources, obj);
-        $scope.checkSubmitButton();
+        $scope.checkSubmitButton($scope.sources.length, $scope.targets.length, $scope.data.selectedOption.id);
     };
 
     $scope.deleteTarget = function(obj){
-        //console.log(obj);
         $scope.targets = _.without($scope.targets, obj);
-        $scope.checkSubmitButton();
+        $scope.checkSubmitButton($scope.sources.length, $scope.targets.length, $scope.data.selectedOption.id);
     };
-
+    $scope.checkSubmitButton($scope.sources.length, $scope.targets.length, $scope.data.selectedOption.id);
 });

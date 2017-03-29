@@ -11,10 +11,84 @@
     <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/directedPath.css" rel="stylesheet">
     <link href="bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
 </head>
 
 <body ng-app="directedPathApp" ng-controller="directedPathCtrl" id="page-top" class="index" style="padding-top: 20px;">
     <div class="container">
+        <!--===================================-->
+        <!--===================================-->
+        <!--==           MODALS              ==-->
+        <!--===================================-->
+        <!--===================================-->
+
+        <div id="sourceHelperModal" class="modal large fade" role="dialog">
+            <div class="modal-dialog large">
+
+                <!-- SOURCES -->
+                <div class="modal-content">
+                    <div class="modal-header" style="border-bottom: 0px;">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Select source nodes</h4>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <form class="form-inline">
+                                  <input ng-model="query" class="form-control simplebox" type="text"
+                                    placeholder="Filter source nodes" autofocus> <span> click to add node to path finding</span>
+                                </form>
+                            </div>
+                            <div class="panel-body">
+                                <button class="btn btn-default btn-xs" style="margin-right: 5px; margin-top: 5px;" ng-click="add_source_terms(node)" ng-repeat="node in info.nodeRef | filter:query | orderBy">
+                                  {{node}}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Done</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="targetHelperModal" class="modal fade" role="dialog">
+            <div class="modal-dialog large">
+
+                <!-- TARGETS -->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Select target nodes</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <form class="form-inline">
+                                  <input ng-model="query" class="form-control simplebox" type="text"
+                                    placeholder="Filter source nodes" autofocus> <span> click to add node to path finding</span>
+                                </form>
+                            </div>
+                            <div class="panel-body">
+                                <button class="btn btn-default btn-xs" style="margin-right: 5px; margin-top: 5px;" ng-click="add_target_terms(node)" ng-repeat="node in info.nodeRef | filter:query | orderBy">
+                                  {{node}}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
 
       <div class="row row-offcanvas row-offcanvas-right">
 
@@ -26,8 +100,21 @@
             <div ng-view ng-cloak autoscroll="true"></div>
             <div class="well" ng-show="!viewGraph">
                 <h3>Directed Paths Inspector</h3>
-                <div class="btn btn-default btn-sm pull-right" style="margin-top: -20px;" ng-click="viewGraph=!viewGraph"><i class="fa fa-angle-double-down" aria-hidden="true"></i></div>
+                <div class="btn btn-default btn-sm pull-right" style="margin-top: -20px;" ng-click="viewGraph=!viewGraph">
+                    <i class="fa fa-angle-double-down" aria-hidden="true"></i></div>
             </div>
+
+            <div class="row" ng-show="viewGraph">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <h4 for="sel1">Reference Network:</h4>
+                        <select class="form-control" name="mySelect" id="mySelect" ng-change="refNetworkChanged(data.selectedOption.id);"
+                                ng-options="option.name for option in data.availableOptions track by option.id" ng-model="data.selectedOption"><option>blah</option></select>
+                        <input type="text" id="otherUuid" ng-change="checkUuid()" ng-model="data.otherSelectedOption.id" ng-show="info.showOtherUuid" class="form-control" placeholder="Enter uuid" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
           <div class="row" ng-show="viewGraph">
             <div class="col-6 col-lg-4">
               <h4>Source Nodes</h4>
@@ -35,8 +122,19 @@
                     <div class="panel panel-default">
                       <div class="panel-heading">
                           <form ng-submit="add_source_terms(dirty_source.term_list)">
-                              <input type="text" id="gene-list-input2" ng-model="dirty_source.term_list"
-                               class="form-control input-lg noShadow" placeholder="Enter source" autocomplete="off">
+
+
+
+                                <div class="input-group">
+                                    <input type="text" id="gene-list-input2" ng-model="dirty_source.term_list"
+                                    class="form-control" placeholder="Enter source" autocomplete="off">
+                                        <span class="input-group-btn">
+                                        <button class="btn btn-default" data-toggle="modal" data-target="#sourceHelperModal" type="button">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i></button>
+                                    </span>
+                                </div>
+
+
                           </form>
                       </div>
 
@@ -57,9 +155,21 @@
                     <div class="panel panel-default">
                       <div class="panel-heading">
                           <form ng-submit="add_target_terms(dirty_target.term_list)">
-                              <input type="text" id="gene-list-input1" ng-model="dirty_target.term_list"
-                               class="form-control input-lg noShadow" placeholder="Enter target" autocomplete="off">
+                                <div class="input-group">
+                                    <input type="text" id="gene-list-input1" ng-model="dirty_target.term_list"
+                                    class="form-control" placeholder="Enter target" autocomplete="off">
+                                        <span class="input-group-btn">
+                                        <button class="btn btn-default" data-toggle="modal" data-target="#targetHelperModal" type="button">
+                                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i></button>
+                                    </span>
+                                </div>
+
+
+
+
                           </form>
+
+
                       </div>
 
                         <div id="collapse2" class="panel-collapse collapse in">
@@ -83,7 +193,8 @@
                 </form>
             </div>
             <div class="col-3 col-lg-2">
-                    <div class="btn btn-primary pull-left" style="margin-top: 120px;" ng-click="checkSubmitButton2()" ng-disabled="!enableSubmit">Find paths</div>
+                    <div class="btn btn-primary pull-left" style="margin-top: 120px;" ng-click="findPaths()" ng-disabled="!enableSubmit">Find paths</div>
+                    <!--<div class="btn btn-primary pull-left" style="margin-top: 20px;" ng-click="getNetworkNodes(null)" ng-disabled="!enableSubmit">Find nodes</div>-->
             </div>
           </div>
           <hr>
@@ -123,6 +234,7 @@
     <script src="bower_components/vis/dist/vis.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
     <script src="bower_components/jqBootstrapValidation/jqBootstrapValidation.js"></script>

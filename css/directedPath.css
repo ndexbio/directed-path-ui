@@ -51,6 +51,12 @@ h6 {
     color: #90a959;
 }
 
+.scroll-500-dropdown-menu {
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 .shadow-button {
     border: 1px solid white;
     background-color: white;
@@ -63,6 +69,19 @@ h6 {
     border: 1px solid white;
     background-color: white;
     color: white;
+}
+
+.simplebox {
+  outline: none;
+  border: 1px solid #C0C0C0 !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.modal-dialog.large {
+  width: calc(100% - 150px);
+  max-width: 1200px;
 }
 
 .tableHoverSelect {
