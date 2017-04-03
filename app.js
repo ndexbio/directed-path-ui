@@ -19,7 +19,8 @@ app.use(bodyParser.urlencoded({
 }));
 
 //var apiProxy = proxy('localhost:5603/directedpath/query', {
-var apiProxy = proxy('general.bigmech.ndexbio.org:5603/directedpath/query', {
+//var apiProxy = proxy('general.bigmech.ndexbio.org:5603/directedpath/query', {
+var apiProxy = proxy('dev.ndexbio.org:5603/directedpath/query', {
     forwardPath: function (req, res) {
         return require('url').parse(req.originalUrl).path;
     },
@@ -42,7 +43,8 @@ var nodeIdsProxy = proxy('public.ndexbio.org/network/networkid/aspect/nodes', {
     }
 });
 
-var preferenceScheduleProxy = proxy('general.bigmech.ndexbio.org:5603/getPreferenceSchedule', {
+//var preferenceScheduleProxy = proxy('general.bigmech.ndexbio.org:5603/getPreferenceSchedule', {
+var preferenceScheduleProxy = proxy('dev.ndexbio.org:5603/getPreferenceSchedule', {
     forwardPath: function (req, res) {
         return require('url').parse(req.originalUrl).path;
     },

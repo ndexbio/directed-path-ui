@@ -10,6 +10,7 @@ var app = angular.module('directedPathApp'); //ui-bootstrap
 */
 app.directive('visJsGraph', function ($timeout) {
     function link(scope, el, attrs) {
+        scope.chevarrow = false;
         scope.highlightPath = ["AKT1", "IRS1", "INSR"]
         scope.selectedRow = 99;
         scope.revealCounter = 0;

@@ -17,7 +17,8 @@ app.controller('directedPathCtrl', function ($scope, $http) {
     $scope.info = {
         nodeRef: [], //["AKT", "MDM2", "MTOR", "BRAF", "MAP2K3", "FGR"]
         showOtherUuid: false,
-        preferenceSchedule: {}
+        preferenceSchedule: {},
+        noPathFound: false
     };
 
     $scope.info.nodeRef
@@ -137,6 +138,12 @@ app.controller('directedPathCtrl', function ($scope, $http) {
             url : "directedpath/query?source=" + tmpSources.join() + "&target=" + tmpTargets.join() + "&pathnum=" + $scope.numPaths + "&uuid=" + uuid + "&server=" + serverHost
         }).then(function mySucces(response) {
             var processData = response.data.data;
+            if(processData.forward.length < 1){
+                $scope.info.noPathFound = true;
+                console.log("NO RESULTS!!!");
+            } else {
+                $scope.info.noPathFound = false;
+            }
             $scope.networkCx = processData.network;
             processData.forward_english.forEach(function(topPaths) {
                 var tmpPath = [];

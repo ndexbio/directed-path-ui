@@ -11,7 +11,6 @@
     <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/directedPath.css" rel="stylesheet">
     <link href="bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-
 </head>
 
 <body ng-app="directedPathApp" ng-controller="directedPathCtrl" id="page-top" class="index" style="padding-top: 20px;">
@@ -124,7 +123,7 @@
 
       <div class="row row-offcanvas row-offcanvas-right">
 
-        <div class="col-12 col-md-9">
+        <div class="col-12">
           <div class="jumbotron" ng-show="viewGraph">
             <h1>Directed Paths</h1>
             <p>Explore paths between nodes across a variety of reference networks (Ras machine, NCI, etc...)</p>
@@ -246,9 +245,11 @@
             </div>
           </div>
           <hr>
-          <div class="row"> </div>
+          <div class="row">
+         </div>
             <div class="row">
-                <div class="col-6 col-lg-4">
+              <div class="alert alert-danger" ng-if="info.noPathFound" role="alert">No paths found</div>
+                <div class="col-12">
                     <vis-js-graph ng-if="pathsWithBestEdge.length > 0" network-cx="networkCx" sources="sourceNodes" targets="targetNodes" paths="pathsWithBestEdge">VISJS</vis-js-graph>
                 </div>
             </div>
